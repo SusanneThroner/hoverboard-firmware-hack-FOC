@@ -5,15 +5,15 @@
 // For variant selection, check platformio.ini 
 // or define the desired build variant here if you want to use make 
 
-#if !defined(PLATFORMIO)
-  //#define VARIANT_ADC         // Variant for control via ADC input
+//#if !defined(PLATFORMIO)
+  #define VARIANT_ADC         // Variant for control via ADC input
   //#define VARIANT_USART3      // Variant for Serial control via USART3 input
   //#define VARIANT_NUNCHUCK    // Variant for Nunchuck controlled vehicle build
   //#define VARIANT_PPM         // Variant for RC-Remote with PPM-Sum Signal
   //#define VARIANT_IBUS        // Variant for RC-Remotes with FLYSKY IBUS
   //#define VARIANT_HOVERCAR    // Variant for HOVERCAR build
   //#define VARIANT_TRANSPOTTER // Variant for TRANSPOTTER build https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter https://hackaday.io/project/161891-transpotter-ng
-#endif
+//#endif
 
 // For any particular needs, feel free to change this file according to your needs.
 
@@ -62,8 +62,8 @@
  * Then you can verify voltage on value 6 (to get calibrated voltage multiplied by 100).
  */
 #define BAT_FILT_COEF           655       // battery voltage filter coefficient in fixed-point. coef_fixedPoint = coef_floatingPoint * 2^16. In this case 655 = 0.01 * 2^16
-#define BAT_CALIB_REAL_VOLTAGE  3970      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
-#define BAT_CALIB_ADC           1492      // adc-value measured by mainboard (value nr 5 on UART debug output)
+#define BAT_CALIB_REAL_VOLTAGE  4050      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
+#define BAT_CALIB_ADC           1533      // adc-value measured by mainboard (value nr 5 on UART debug output)
 
 #define BAT_CELLS               10        // battery number of cells. Normal Hoverboard battery: 10s
 #define BAT_LOW_LVL1_ENABLE     0         // to beep or not to beep, 1 or 0
@@ -101,7 +101,7 @@
 
 #ifndef VARIANT_TRANSPOTTER
   //#define DEBUG_SERIAL_SERVOTERM
-  //#define DEBUG_SERIAL_ASCII          // "1:345 2:1337 3:0 4:0 5:0 6:0 7:0 8:0\r\n"
+  #define DEBUG_SERIAL_ASCII          // "1:345 2:1337 3:0 4:0 5:0 6:0 7:0 8:0\r\n"
 #endif
 
 
