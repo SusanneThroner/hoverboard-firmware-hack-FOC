@@ -200,7 +200,7 @@
     // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
     #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
-    #define ADC2_MAX            1550      // max ADC2-value while poti at maximum-position (0 - 4095)
+    #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
   #elif defined(VARIANT_HOVERCAR_FRONT)
     // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
     #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
@@ -209,7 +209,7 @@
     // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
     #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
-    #define ADC2_MAX            1550      // max ADC2-value while poti at maximum-position (0 - 4095)
+    #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
   #endif
 #endif
 // #ifdef VARIANT_HOVERCAR
@@ -286,7 +286,7 @@
  */
 
 // Beep in Reverse
-#define BEEPS_BACKWARD        1     // 0 or 1
+#define BEEPS_BACKWARD        0     // 0 or 1
 
 // Multiple tap detection: default DOUBLE Tap (4 pulses)
 #define MULTIPLE_TAP_NR       2 * 2 // [-] Define tap number: MULTIPLE_TAP_NR = number_of_taps * 2, number_of_taps = 1 (for single taping), 2 (for double tapping), 3 (for triple tapping), etc...
@@ -316,7 +316,11 @@
 
 // ################################# VARIANT_HOVERCAR SETTINGS ############################
 #ifdef VARIANT_HOVERCAR
-  #define SPEED_COEFFICIENT  4096 //0.25f 16384  //  1.0f
+  #if defined(VARIANT_HOVERCAR_BACK)
+    #define SPEED_COEFFICIENT  4096 //0.25f 16384  //  1.0f
+  #elif defined(VARIANT_HOVERCAR_FRONT)
+    #define SPEED_COEFFICIENT 3072
+  #endif
   #define STEER_COEFFICIENT  0      //  0.0f
   
   #define INVERT_R_DIRECTION
