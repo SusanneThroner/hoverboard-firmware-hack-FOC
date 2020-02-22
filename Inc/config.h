@@ -166,36 +166,45 @@
 
 // ###### CONTROL VIA TWO POTENTIOMETERS ######
 /* ADC-calibration to cover the full poti-range:
- * Connect potis to left sensor board cable (0 to 3.3V) (do NOT use the red 15V wire in the cable!). see <How to calibrate>.
+ * Connect potis to left sensor board cable (0 to #ifdef VARIANT_HOVERCAR
+//   #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
+//   #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
+//   #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
+//   #define ADC_PROTECT_THRESH  400       // ADC Protection threshold below/above the MIN/MAX ADC values
+//   #define ADC1_MIN            1000      // min ADC1-value while poti at minimum-position (0 - 4095)
+//   #define ADC1_MAX            2500      // max ADC1-value while poti at maximum-position (0 - 4095)
+//   #define ADC2_MIN            500       // min ADC2-value while poti at minimum-position (0 - 4095)
+//   #define ADC2_MAX            2200      // max ADC2-value while poti at maximum-position (0 - 4095)
+// #endif3.3V) (do NOT use the red 15V wire in the cable!). see <How to calibrate>.
  * Turn the potis to minimum position, write value 1 to ADC1_MIN and value 2 to ADC2_MIN
  * Turn the potis to maximum position, write value 1 to ADC1_MAX and value 2 to ADC2_MAX
  * For middle resting potis: Let the potis in the middle resting position, write value 1 to ADC1_MID and value 2 to ADC2_MID
  * Make, flash and test it.
  */
-#ifdef VARIANT_ADC
-  #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
-  // #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
-  #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
-  #define ADC_PROTECT_THRESH  400       // ADC Protection threshold below/above the MIN/MAX ADC values
-  // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
-  #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
-  #define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
-  #define ADC1_MAX            4095      // max ADC1-value while poti at maximum-position (0 - 4095)
-  // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
-  #define ADC2_MIN            0         // min ADC2-value while poti at minimum-position (0 - 4095)
-  #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
-  #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
-#endif
-#ifdef VARIANT_HOVERCAR
+#if defined(VARIANT_ADC) || defined(VARIANT_HOVERCAR)
   #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
   #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
   #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
   #define ADC_PROTECT_THRESH  400       // ADC Protection threshold below/above the MIN/MAX ADC values
-  #define ADC1_MIN            1000      // min ADC1-value while poti at minimum-position (0 - 4095)
-  #define ADC1_MAX            2500      // max ADC1-value while poti at maximum-position (0 - 4095)
-  #define ADC2_MIN            500       // min ADC2-value while poti at minimum-position (0 - 4095)
-  #define ADC2_MAX            2200      // max ADC2-value while poti at maximum-position (0 - 4095)
+  // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
+  #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
+  //#define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
+  #define ADC1_MAX            3900      // max ADC1-value while poti at maximum-position (0 - 4095)
+  // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
+  #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
+ // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
+  #define ADC2_MAX            1550      // max ADC2-value while poti at maximum-position (0 - 4095)
 #endif
+// #ifdef VARIANT_HOVERCAR
+//   #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
+//   #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
+//   #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
+//   #define ADC_PROTECT_THRESH  400       // ADC Protection threshold below/above the MIN/MAX ADC values
+//   #define ADC1_MIN            1000      // min ADC1-value while poti at minimum-position (0 - 4095)
+//   #define ADC1_MAX            2500      // max ADC1-value while poti at maximum-position (0 - 4095)
+//   #define ADC2_MIN            500       // min ADC2-value while poti at minimum-position (0 - 4095)
+//   #define ADC2_MAX            2200      // max ADC2-value while poti at maximum-position (0 - 4095)
+// #endif
 
 #ifdef VARIANT_NUNCHUCK
   // ###### CONTROL VIA NINTENDO NUNCHUCK ######
@@ -290,11 +299,11 @@
 
 // ################################# VARIANT_HOVERCAR SETTINGS ############################
 #ifdef VARIANT_HOVERCAR
-  #define SPEED_COEFFICIENT  16384  //  1.0f
+  #define SPEED_COEFFICIENT  4096 //0.25f 16384  //  1.0f
   #define STEER_COEFFICIENT  0      //  0.0f
   
-  // #define INVERT_R_DIRECTION
-  // #define INVERT_L_DIRECTION
+  #define INVERT_R_DIRECTION
+  #define INVERT_L_DIRECTION
 #endif
 
 // ################################# VARIANT_TRANSPOTTER SETTINGS ############################
