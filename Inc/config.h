@@ -5,15 +5,20 @@
 // For variant selection, check platformio.ini 
 // or define the desired build variant here if you want to use make 
 
-//#if !defined(PLATFORMIO)
+#if !defined(PLATFORMIO)
   #define VARIANT_ADC         // Variant for control via ADC input
+    
   //#define VARIANT_USART3      // Variant for Serial control via USART3 input
   //#define VARIANT_NUNCHUCK    // Variant for Nunchuck controlled vehicle build
   //#define VARIANT_PPM         // Variant for RC-Remote with PPM-Sum Signal
   //#define VARIANT_IBUS        // Variant for RC-Remotes with FLYSKY IBUS
-  //#define VARIANT_HOVERCAR    // Variant for HOVERCAR build
+  #define VARIANT_HOVERCAR    // Variant for HOVERCAR build
   //#define VARIANT_TRANSPOTTER // Variant for TRANSPOTTER build https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter https://hackaday.io/project/161891-transpotter-ng
-//#endif
+  #if defined(VARIANT_HOVERCAR)
+    #define VARIANT_HOVERCAR_BACK
+    //#define VARIANT_HOVERCAR_FRONT
+  #endif
+#endif
 
 // For any particular needs, feel free to change this file according to your needs.
 
@@ -186,14 +191,26 @@
   #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
   #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
   #define ADC_PROTECT_THRESH  400       // ADC Protection threshold below/above the MIN/MAX ADC values
-  // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
-  #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
-  //#define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
-  #define ADC1_MAX            3900      // max ADC1-value while poti at maximum-position (0 - 4095)
-  // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
-  #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
- // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
-  #define ADC2_MAX            1550      // max ADC2-value while poti at maximum-position (0 - 4095)
+
+  #if defined(VARIANT_HOVERCAR_BACK)
+    // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
+    #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
+    //#define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
+    #define ADC1_MAX            3900      // max ADC1-value while poti at maximum-position (0 - 4095)
+    // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
+    #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
+  // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
+    #define ADC2_MAX            1550      // max ADC2-value while poti at maximum-position (0 - 4095)
+  #elif defined(VARIANT_HOVERCAR_FRONT)
+    // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
+    #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
+    //#define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
+    #define ADC1_MAX            3900      // max ADC1-value while poti at maximum-position (0 - 4095)
+    // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
+    #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
+  // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
+    #define ADC2_MAX            1550      // max ADC2-value while poti at maximum-position (0 - 4095)
+  #endif
 #endif
 // #ifdef VARIANT_HOVERCAR
 //   #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
