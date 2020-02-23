@@ -69,7 +69,7 @@
 #if defined(VARIANT_HOVERCAR_FRONT)
   #define BAT_FILT_COEF           655       // battery voltage filter coefficient in fixed-point. coef_fixedPoint = coef_floatingPoint * 2^16. In this case 655 = 0.01 * 2^16
   #define BAT_CALIB_REAL_VOLTAGE  3890      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
-  #define BAT_CALIB_ADC           1533      // adc-value measured by mainboard (value nr 5 on UART debug output)
+  #define BAT_CALIB_ADC           1465      // adc-value measured by mainboard (value nr 5 on UART debug output)
 #else
   #define BAT_FILT_COEF           655       // battery voltage filter coefficient in fixed-point. coef_fixedPoint = coef_floatingPoint * 2^16. In this case 655 = 0.01 * 2^16
   #define BAT_CALIB_REAL_VOLTAGE  4050      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
