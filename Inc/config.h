@@ -58,24 +58,30 @@
 // ############################### GENERAL ###############################
 
 /* How to calibrate: connect GND and RX of a 3.3v uart-usb adapter to the right sensor board cable
- * Be careful not to use the red wire of the cable. 15v will destroye verything.).
- * If you are using nunchuck, disable it temporarily. enable DEBUG_SERIAL_USART3 and DEBUG_SERIAL_ASCII use asearial terminal.
+ * Be careful not to use the red wire of the cable. 15v will destroy everything.).
+ * If you are using nunchuck, disable it temporarily. enable DEBUG_SERIAL_USART3 and DEBUG_SERIAL_ASCII use a serial terminal.
  */
 
 /* Battery voltage calibration: connect power source. see <How to calibrate>.
  * Write value nr 5 to BAT_CALIB_ADC. make and flash firmware.
  * Then you can verify voltage on value 6 (to get calibrated voltage multiplied by 100).
  */
-#define BAT_FILT_COEF           655       // battery voltage filter coefficient in fixed-point. coef_fixedPoint = coef_floatingPoint * 2^16. In this case 655 = 0.01 * 2^16
-#define BAT_CALIB_REAL_VOLTAGE  4050      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
-#define BAT_CALIB_ADC           1533      // adc-value measured by mainboard (value nr 5 on UART debug output)
+#if defined(VARIANT_HOVERCAR_FRONT)
+  #define BAT_FILT_COEF           655       // battery voltage filter coefficient in fixed-point. coef_fixedPoint = coef_floatingPoint * 2^16. In this case 655 = 0.01 * 2^16
+  #define BAT_CALIB_REAL_VOLTAGE  3890      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
+  #define BAT_CALIB_ADC           1533      // adc-value measured by mainboard (value nr 5 on UART debug output)
+#else
+  #define BAT_FILT_COEF           655       // battery voltage filter coefficient in fixed-point. coef_fixedPoint = coef_floatingPoint * 2^16. In this case 655 = 0.01 * 2^16
+  #define BAT_CALIB_REAL_VOLTAGE  4050      // input voltage measured by multimeter (multiplied by 100). For example 43.00 V * 100 = 4300
+  #define BAT_CALIB_ADC           1533      // adc-value measured by mainboard (value nr 5 on UART debug output)
+#endif
 
 #define BAT_CELLS               10        // battery number of cells. Normal Hoverboard battery: 10s
 #define BAT_LOW_LVL1_ENABLE     0         // to beep or not to beep, 1 or 0
 #define BAT_LOW_LVL2_ENABLE     1         // to beep or not to beep, 1 or 0
-#define BAT_LOW_LVL1            (360 * BAT_CELLS * BAT_CALIB_ADC) / BAT_CALIB_REAL_VOLTAGE    // gently beeps at this voltage level. [V*100/cell]. In this case 3.60 V/cell
-#define BAT_LOW_LVL2            (350 * BAT_CELLS * BAT_CALIB_ADC) / BAT_CALIB_REAL_VOLTAGE    // your battery is almost empty. Charge now! [V*100/cell]. In this case 3.50 V/cell
-#define BAT_LOW_DEAD            (337 * BAT_CELLS * BAT_CALIB_ADC) / BAT_CALIB_REAL_VOLTAGE    // undervoltage poweroff. (while not driving) [V*100/cell]. In this case 3.37 V/cell
+#define BAT_LOW_LVL1            (330 * BAT_CELLS * BAT_CALIB_ADC) / BAT_CALIB_REAL_VOLTAGE    // gently beeps at this voltage level. [V*100/cell]. In this case 3.60 V/cell
+#define BAT_LOW_LVL2            (320 * BAT_CELLS * BAT_CALIB_ADC) / BAT_CALIB_REAL_VOLTAGE    // your battery is almost empty. Charge now! [V*100/cell]. In this case 3.50 V/cell
+#define BAT_LOW_DEAD            (310 * BAT_CELLS * BAT_CALIB_ADC) / BAT_CALIB_REAL_VOLTAGE    // undervoltage poweroff. (while not driving) [V*100/cell]. In this case 3.37 V/cell
 
 
 /* Board overheat detection: the sensor is inside the STM/GD chip.
