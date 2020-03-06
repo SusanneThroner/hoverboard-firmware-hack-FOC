@@ -100,6 +100,10 @@ extern I2C_HandleTypeDef hi2c2;
   uint8_t nunchuck_connected = 1;
 #endif
 
+#ifdef DEBUG_MOTOR_CONTROL
+  static int8_t = motor_test_direction
+#endif
+
 #if defined(CONTROL_ADC) && defined(ADC_PROTECT_ENA)
 static int16_t timeoutCntADC   = 0;  // Timeout counter for ADC Protection
 #endif
@@ -651,6 +655,16 @@ int main(void) {
         } else {
           speed = steer - speed;                // Reverse driving
         }
+      #endif
+
+      #ifdef DEBUG_MOTOR_CONTROL
+        if (motor_test_direction == 1){ 
+          cmd2 += 1;
+          }
+        else{
+          cmd2 -= 1;
+        } 
+        if (abs(cmd2) > DEBUG_MOTOR_CONTROL_MAX_SPEED) motor_test_direction = -motor_test_direction;
       #endif
 
       // ####### MIXER #######

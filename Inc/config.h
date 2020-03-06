@@ -216,18 +216,13 @@
     #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
     #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
+  #else //VARIANT_HOVERCAR without FRONT/BACK
+    #define ADC1_MIN            1000      // min ADC1-value while poti at minimum-position (0 - 4095)
+    #define ADC1_MAX            2500      // max ADC1-value while poti at maximum-position (0 - 4095)
+    #define ADC2_MIN            500       // min ADC2-value while poti at minimum-position (0 - 4095)
+    #define ADC2_MAX            2200      // max ADC2-value while poti at maximum-position (0 - 4095)
   #endif
 #endif
-// #ifdef VARIANT_HOVERCAR
-//   #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
-//   #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
-//   #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
-//   #define ADC_PROTECT_THRESH  400       // ADC Protection threshold below/above the MIN/MAX ADC values
-//   #define ADC1_MIN            1000      // min ADC1-value while poti at minimum-position (0 - 4095)
-//   #define ADC1_MAX            2500      // max ADC1-value while poti at maximum-position (0 - 4095)
-//   #define ADC2_MIN            500       // min ADC2-value while poti at minimum-position (0 - 4095)
-//   #define ADC2_MAX            2200      // max ADC2-value while poti at maximum-position (0 - 4095)
-// #endif
 
 #ifdef VARIANT_NUNCHUCK
   // ###### CONTROL VIA NINTENDO NUNCHUCK ######
@@ -360,6 +355,11 @@
   #define STEER_COEFFICIENT  62259   // -0.2f
 
 #endif
+
+// ###### MOTOR TEST MODE ######
+// slowly move both wheels forward and backward, ignoring all inputs
+#define DEBUG_MOTOR_CONTROL
+#define DEBUG_MOTOR_CONTROL_MAX_SPEED 300         // sweep slowly from -MAX_SPEED to MAX_SPEED (0 - 1000)
 
 // ################################# SIMPLE BOBBYCAR #################################
 // for better bobbycar code see: https://github.com/larsmm/hoverboard-firmware-hack-bbcar
