@@ -101,7 +101,8 @@ extern I2C_HandleTypeDef hi2c2;
 #endif
 
 #ifdef DEBUG_MOTOR_CONTROL
-  static int8_t = motor_test_direction
+  static int8_t motor_test_direction;
+  static int16_t old_speed = 20;                // local variable for speed. -1000 to 1000
 #endif
 
 #if defined(CONTROL_ADC) && defined(ADC_PROTECT_ENA)
@@ -659,12 +660,13 @@ int main(void) {
 
       #ifdef DEBUG_MOTOR_CONTROL
         if (motor_test_direction == 1){ 
-          cmd2 += 1;
+          speed = old_speed+1;
           }
         else{
-          cmd2 -= 1;
+          speed = old_speed-1;
         } 
-        if (abs(cmd2) > DEBUG_MOTOR_CONTROL_MAX_SPEED) motor_test_direction = -motor_test_direction;
+        old_speed = speed;
+        if (abs(speed) > DEBUG_MOTOR_CONTROL_MAX_SPEED) motor_test_direction = -motor_test_direction;
       #endif
 
       // ####### MIXER #######
