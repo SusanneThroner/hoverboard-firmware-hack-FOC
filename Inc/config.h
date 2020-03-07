@@ -122,9 +122,9 @@
 #define START_FRAME             0xAAAA                  // [-] Start frame definition for serial commands
 #define SERIAL_TIMEOUT          160                     // [-] Serial timeout duration for the received data. 160 ~= 0.8 sec. Calculation: 0.8 sec / 0.005 sec
 
-#define USART2_BAUD             38400                   // UART2 baud rate (long wired cable)
+#define USART2_BAUD             115200                   // UART2 baud rate (long wired cable)
 #define USART2_WORDLENGTH       UART_WORDLENGTH_8B      // UART_WORDLENGTH_8B or UART_WORDLENGTH_9B
-#define USART3_BAUD             38400                   // UART3 baud rate (short wired cable)
+#define USART3_BAUD             11520                   // UART3 baud rate (short wired cable)
 #define USART3_WORDLENGTH       UART_WORDLENGTH_8B      // UART_WORDLENGTH_8B or UART_WORDLENGTH_9B
 
 #if defined(VARIANT_ADC) || defined(VARIANT_HOVERCAR)

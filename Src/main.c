@@ -659,6 +659,7 @@ int main(void) {
       #endif
 
       #ifdef DEBUG_MOTOR_CONTROL
+      enable = 1;
         if (motor_test_direction == 1){ 
           speed = old_speed+1;
           }
