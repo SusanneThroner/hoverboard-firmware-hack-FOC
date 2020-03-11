@@ -1,22 +1,42 @@
 # hoverboard-firmware-hack-FOC
-## with Field Oriented Control (FOC)
 [![Build Status](https://travis-ci.com/EmanuelFeru/hoverboard-firmware-hack-FOC.svg?branch=master)](https://travis-ci.com/EmanuelFeru/hoverboard-firmware-hack-FOC)
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=feru_emanuel%40yahoo.com&currency_code=EUR&source=url)
-***If you like this project, you can give me a cup of coffee. Thanks!*** 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=CU2SWN2XV9SCY&currency_code=EUR&source=url)
 
 This repository implements Field Oriented Control (FOC) for stock hoverboards. Compared to the commutation method, this new FOC control method offers superior performance featuring:
  - reduced noise and vibrations 	
  - smooth torque output and improved motor efficiency. Thus, lower energy consumption
  - field weakening to increase maximum speed range
  
+ #### For the hoverboard sideboard firmware see the following repositories:
+ - [hoverboard-sideboard-hack-GD](https://github.com/EmanuelFeru/hoverboard-sideboard-hack-GD)
+ - [hoverboard-sideboard-hack-STM](https://github.com/EmanuelFeru/hoverboard-sideboard-hack-STM)
+ 
+ ---
+ ## Hardware
+ 
+![mainboard_pinout](pinout.png)
+
+The original Hardware supports two 4-pin cables that originally were connected to the two sensor boards. They break out GND, 12/15V and USART2&3 of the Hoverboard mainboard.
+Both USART2 & 3 can be used for UART and I2C, PA2&3 can be used as 12bit ADCs.
+
+The reverse-engineered schematics of the mainboard can be found here:
+http://vocke.tv/lib/exe/fetch.php?media=20150722_hoverboard_sch.pdf
+ 
+ 
+ ---
+ ## FOC firmware
+ 
  This new firmware offers 3 control modes:
   - **VOLTAGE MODE**: in this mode the controller applies a constant Voltage to the motors
   - **SPEED MODE**: in this mode a closed-loop controller realizes the input target speed by rejecting any of the disturbance (resistive load) applied to the motor
   - **TORQUE MODE**: in this mode the target torque set by the user is realized. This mode enables motor "freewheeling" when the torque target is "0".
   
-  **NOTE**: In all the modes, the controller features maximum motor speed and maximum motor current protection. This brings great advantages to fulfil the needs of many robotic applications while maintaining safe operation.
+In all the modes, the controller features maximum motor speed and maximum motor current protection. This brings great advantages to fulfil the needs of many robotic applications while maintaining safe operation.  
+   - The C code for the controller was auto-code generated using [Matlab/Simulink](https://nl.mathworks.com/solutions/embedded-code-generation.html) from a model which I developed from scratch specifically for hoverboard control. For more details regarding the working principle of the controller please consult the [Matlab/Simulink model](/01_Matlab).
+ - A [webview](/01_Matlab/BLDC_controller_ert_rtw/html/webview) was created, so Matlab/Simulink installation is not needed, unless you want to regenerate the code. The webview is an html page that can be opened with browsers like: Microsoft Internet Explorer or Microsoft Edge.
 
-## Firmware architecture
+### Firmware architecture
 
 The main firmware architecture includes:
 - **Estimations**: estimates the rotor position, angle and motor speed based on Hall sensors signal
@@ -37,24 +57,6 @@ In this firmware 3 control types are available:
 - FOC (Field Oriented Control)
 ![Schematic representation of the available control methods](/01_Matlab/02_Figures/control_methods.png)
 
-
-Demo videos:
-
-[►Video: Commutation vs Advanced control (constant speed)](https://drive.google.com/open?id=1vC_kEkp2LE2lAaMCJcmK4z2m3jrPUoBD)
-
-[►Video: Commutation vs Advanced control (variable speed)](https://drive.google.com/open?id=1rrQ4k5VLhhAWXQzDSCar_SmEdsbM-hq2)
-
-[►Video: Reliable Serial Communication demo](https://drive.google.com/open?id=1mUM-p7SE6gmyTH7zhDHy5DUyczXvmy5d)
-
-[►Video: HOVERCAR demo](https://drive.google.com/open?id=18IvRJVdQSsjTg1I0Wedlg19e0FuDjfdS)
-
-![Hoverboard wheel](/docs/pictures/hoverboard_wheel.JPG)
-
-
----
-## General Notes
- - The C code for the controller was auto-code generated using [Matlab/Simulink](https://nl.mathworks.com/solutions/embedded-code-generation.html) from a model which I developed from scratch specifically for hoverboard control. For more details regarding the working principle of the controller please consult the [Matlab/Simulink model](/01_Matlab).
- - A [webview](/01_Matlab/BLDC_controller_ert_rtw/html/webview) was created, so Matlab/Simulink installation is not needed, unless you want to regenerate the code. The webview is an html page that can be opened with browsers like: Microsoft Internet Explorer or Microsoft Edge.
 
 ### Field Weakening / Phase Advance
 
@@ -81,59 +83,116 @@ Each motor is constantly monitored for errors. These errors are:
 - **Error 002**: Hall sensor short circuit
 - **Error 004**: Motor NOT able to spin (Possible causes: motor phase disconnected, MOSFET defective, operational Amplifier defective, motor blocked)
 
-The error codes above are reported for each motor in the variables **errCode_Left** and **errCode_Right** for Left motor (long wired motor) and Right motor (short wired motor), respectively. In case of error, the motor power is reduced to 0, while an audible (fast beep) can be heard to notify the user.
+The error codes above are reported for each motor in the variables **rtY_Left.z_errCode** and **rtY_Right.z_errCode** for Left motor (long wired motor) and Right motor (short wired motor), respectively. In case of error, the motor power is reduced to 0, while an audible (fast beep) can be heard to notify the user.
+
+
+### Demo videos
+
+[►Video: Commutation vs Advanced control (constant speed)](https://drive.google.com/open?id=1vC_kEkp2LE2lAaMCJcmK4z2m3jrPUoBD)
+
+[►Video: Commutation vs Advanced control (variable speed)](https://drive.google.com/open?id=1rrQ4k5VLhhAWXQzDSCar_SmEdsbM-hq2)
+
+[►Video: Reliable Serial Communication demo](https://drive.google.com/open?id=1mUM-p7SE6gmyTH7zhDHy5DUyczXvmy5d)
+
+[►Video: HOVERCAR demo](https://drive.google.com/open?id=18IvRJVdQSsjTg1I0Wedlg19e0FuDjfdS)
 
 
 ---
-## Building 
-For building (and flashing) I recommend platform.io, plaformio.ini file included. Simply open the folder in the IDE of choice (vscode or Atom), and press the 'PlatformIO:Build' or the 'PlatformIO:Upload' button (bottom left in vscode).
+## Example Variants 
 
-Additionally, you can also flash using the method described below in the Flashing Section.
+This firmware offers currently these variants (selectable in [platformio.ini](/platformio.ini) or [config.h](/Inc/config.h)):
+- **VARIANT_ADC**: In this variant the motors are controlled by two potentiometers connected to the Left sensor cable (long wired)
+- **VARIANT_USART**: In this variant the motors are controlled via serial protocol (e.g. on USART3 right sensor cable, the short wired cable). The commands can be sent from an Arduino. Check out the [hoverserial.ino](/02_Arduino/hoverserial) as an example sketch.
+- **VARIANT_NUNCHUK**: Wii Nunchuk offers one hand control for throttle, braking and steering. This was one of the first input device used for electric armchairs or bottle crates.
+- **VARIANT_PPM**: This is when you want to use a RC remote control with PPM Sum signal
+- **VARIANT_IBUS**: This is when you want to use a RC remote control with Flysky IBUS protocol connected to the Left sensor cable.
+- **VARIANT_HOVERCAR**: In this variant the motors are controlled by two pedals brake and throttle. Reverse is engaged by double tapping on the brake pedal at standstill.
+- **VARIANT_HOVERBOARD**: In this variant the mainboard reads the sideboards data. The sideboards need to be flashed with the hacked version. Only balancing controller is still to be implemented.
+- **VARIANT_TRANSPOTTER**: This build is for transpotter which is a hoverboard based transportation system. For more details on how to build it check [here](https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter) and [here](https://hackaday.io/project/161891-transpotter-ng).
+
+Of course the firmware can be further customized for other needs or projects.
+
 
 ---
-
-## Hardware
-![otter](https://raw.githubusercontent.com/EmanuelFeru/hoverboard-firmware-hack/master/pinout.png)
-
-The original Hardware supports two 4-pin cables that originally were connected to the two sensor boards. They break out GND, 12/15V and USART2&3 of the Hoverboard mainboard.
-Both USART2 & 3 can be used for UART and I2C, PA2&3 can be used as 12bit ADCs.
-
-The reverse-engineered schematics of the mainboard can be found here:
-http://vocke.tv/lib/exe/fetch.php?media=20150722_hoverboard_sch.pdf
-
----
-
 ## Flashing
-To build the firmware, just type "make". Make sure you have specified your gcc-arm-none-eabi binary location in the Makefile ("PREFIX = ...") (version 7 works, there is a version that does not!) (if the ons in linux repos do not work, use the official version: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads). Right to the STM32, there is a debugging header with GND, 3V3, SWDIO and SWCLK. Connect GND, SWDIO and SWCLK to your SWD programmer, like the ST-Link found on many STM devboards.
+
+Right to the STM32, there is a debugging header with GND, 3V3, SWDIO and SWCLK. Connect GND, SWDIO and SWCLK to your SWD programmer, like the ST-Link found on many STM devboards.
+
+If you have never flashed your sideboard before, the MCU is probably locked. To unlock the flash, check-out the wiki page [How to Unlock MCU flash](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/How-to-Unlock-MCU-flash).
 
 Do not power the mainboard from the 3.3V of your programmer! This has already killed multiple mainboards.
 
 Make sure you hold the powerbutton or connect a jumper to the power button pins while flashing the firmware, as the STM might release the power latch and switches itself off during flashing. Battery > 36V have to be connected while flashing.
 
-To flash the STM32, use the ST-Flash utility (https://github.com/texane/stlink).
+To build and flash choose one of the following methods:
 
-If you never flashed your mainboard before, the STM is probably locked. To unlock the flash, use the following OpenOCD command:
-```
-openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c init -c "reset halt" -c "stm32f1x unlock 0"
-```
+### Method 1: Using Platformio IDE
 
-If that does not work:
-```
-openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c init -c "reset halt" -c "mww 0x40022004 0x45670123" -c "mww 0x40022004 0xCDEF89AB" -c "mww 0x40022008 0x45670123" -c "mww 0x40022008 0xCDEF89AB" -c "mww 0x40022010 0x220" -c "mww 0x40022010 0x260" -c "sleep 100" -c "mww 0x40022010 0x230" -c "mwh 0x1ffff800 0x5AA5" -c "sleep 1000" -c "mww 0x40022010 0x2220" -c "sleep 100" -c "mdw 0x40022010" -c "mdw 0x4002201c" -c "mdw 0x1ffff800" -c targets -c "halt" -c "stm32f1x unlock 0"
-```
-```
-openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c init -c "reset halt" -c "mww 0x40022004 0x45670123" -c "mww 0x40022004 0xCDEF89AB" -c "mww 0x40022008 0x45670123" -c "mww 0x40022008 0xCDEF89AB" -c targets -c "halt" -c "stm32f1x unlock 0"
-```
-Or use the Windows ST-Link utility.
+- open the folder in the IDE of choice (vscode or Atom)
+- press the 'PlatformIO:Build' or the 'PlatformIO:Upload' button (bottom left in vscode).
 
-Then you can simply flash the firmware:
+### Method 2: Using Keil uVision
+
+- in [Keil uVision](https://www.keil.com/download/product/), open the [mainboard-hack.uvproj](/MDK-ARM/)
+- if you are asked to install missing packages, click Yes
+- click Build Target (or press F7) to build the firmware
+- click Load Code (or press F8) to flash the firmware.
+
+### Method 3: Using Linux CLI
+
+- prerequisites: install [ST-Flash utility](https://github.com/texane/stlink).
+- open a terminal in the repo check-out folder and if you have definded the variant in [config.h](/Inc/config.h) type:
 ```
-st-flash --reset write build/hover.bin 0x8000000
+make
 ```
-or
+or you can set the variant like this
+```
+make -e VARIANT=VARIANT_NUNCHUK
+```
+- flash the firmware by typing:
+```
+make flash
+```
+- or
 ```
 openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c flash "write_image erase build/hover.bin 0x8000000"
 ```
+
+### Method 4: MacOS CLI
+- prerequisites:  first get brew https://brew.sh
+- then install stlink ST-Flash utility
+
+#### Using Make
+```
+brew install stlink
+```
+- open a terminal in the repo check-out folder and if you have definded the variant in [config.h](/Inc/config.h) type:
+```
+make
+```
+or you can set the variant like this
+```
+make -e VARIANT=VARIANT_####
+```
+If compiling fails because something is missing just install it with brew AND leave a comment to improve this howto or pull request ;-)
+
+- flash the firmware by typing:
+```
+make flash
+```
+- if unlock is needed
+```
+make unlock
+```
+
+#### Using platformio CLI
+
+```
+brew install platformio
+platformio run -e VARIANT_####
+platformio run –target upload -e VARIANT_####
+```
+If you have set default_envs in [platformio.ini](/platformio.ini) you can ommit -e parameter
 
 ---
 ## Troubleshooting
@@ -142,35 +201,34 @@ If the board draws more than 100mA in idle, it's probably broken.
 
 If the motors do something, but don't rotate smooth and quietly, try to use an alternative phase mapping. Usually, color-correct mapping (blue to blue, green to green, yellow to yellow) works fine. However, some hoverboards have a different layout then others, and this might be the reason your motor isn't spinning.
 
-Nunchuck not working: Use the right one of the 2 types of nunchucks. Use i2c pullups.
+Nunchuk not working: Use the right one of the 2 types of nunchuks. Use i2c pullups.
 
-Nunchuck or PPM working bad: The i2c bus and PPM signal are very sensitive to emv distortions of the motor controller. They get stronger the faster you are. Keep cables short, use shielded cable, use ferrits, stabilize voltage in nunchuck or reviever, add i2c pullups. To many errors leads to very high accelerations which triggers the protection board within the battery to shut everything down.
+Nunchuk or PPM working bad: The i2c bus and PPM signal are very sensitive to emv distortions of the motor controller. They get stronger the faster you are. Keep cables short, use shielded cable, use ferrits, stabilize voltage in nunchuk or reviever, add i2c pullups. To many errors leads to very high accelerations which triggers the protection board within the battery to shut everything down.
 
-Recommendation: Nunchuck Breakout Board https://github.com/Jan--Henrik/hoverboard-breakout
+Recommendation: Nunchuk Breakout Board https://github.com/Jan--Henrik/hoverboard-breakout
 
 Most robust way for input is to use the ADC and potis. It works well even on 1m unshielded cable. Solder ~100k Ohm resistors between ADC-inputs and gnd directly on the mainboard. Use potis as pullups to 3.3V.
 
----
-## Example variants 
-
-This firmware offers currently these variants (selectable in [platformio.ini](/platformio.ini) and / or [/Inc/config.h](/Inc/config.h)):
-- **VARIANT_ADC**: In this variant the motors are controlled by two potentiometers connected to the Left sensor cable (long wired)
-- **VARIANT_USART3**: In this variant the motors are controlled via serial protocol on USART3 right sensor cable (short wired). The commands can be sent from an Arduino. Check out the [hoverserial.ino](/02_Arduino/hoverserial) as an example sketch.
-- **VARIANT_NUNCHUCK**: Wii Nunchuck offers one hand control for throttle, braking and steering. This was one of the first input device used for electric armchairs or bottle crates.
-- **VARIANT_PPM**: This is when you want to use a RC remote control with PPM Sum signal
-- **VARIANT_IBUS**: This is when you want to use a RC remote control with Flysky IBUS protocol connected to the Left sensor cable.
-- **VARIANT_HOVERCAR**: In this variant the motors are controlled by two pedals brake and throttle. Reverse is engaged by double tapping on the brake pedal at standstill.
-- **VARIANT_TRANSPOTTER**: This build is for transpotter which is a hoverboard based transportation system. For more details on how to build it check [here](https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter) and [here](https://hackaday.io/project/161891-transpotter-ng).
-
-Of course the firmware can be further customized for other needs or projects.
 
 ---
+
 ## Acknowledgements
 
 Last but not least, I would like to acknowledge and thank the following people:
 - Original firmware: [@NiklasFauth](https://github.com/NiklasFauth)
 - Github: [@TomTinkering](https://github.com/TomTinkering), [@ced2c](https://github.com/ced2c), [@btsimonh](https://github.com/btsimonh), [@lalalandrus](https://github.com/lalalandrus), [@p-h-a-i-l](https://github.com/p-h-a-i-l) , [@AntumArk](https://github.com/AntumArk), [@juodumas](https://github.com/juodumas)
+- Github: all the people that contributed via Pull Requests
 - ST Employee: [cedric H](https://community.st.com/s/question/0D50X0000B28qTDSQY/custom-foc-control-current-measurement-dma-timer-interrupt-needs-review)
 
-for the very useful discussions, code snippets, and good suggestions to make this work possbile.
+
+---
+## Contributions
+
+Every contribution to this repository is highly appreciated! Feel free to create pull requests to improve this firmware as ultimately you are going to help everyone. 
+
+If you want to donate to keep this firmware updated, please use the link below:
+
+[![paypal](https://www.paypalobjects.com/en_US/NL/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=CU2SWN2XV9SCY&currency_code=EUR&source=url)
+
+---
 
