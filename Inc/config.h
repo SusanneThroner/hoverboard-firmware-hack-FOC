@@ -124,7 +124,7 @@
 
 #define USART2_BAUD             115200                   // UART2 baud rate (long wired cable)
 #define USART2_WORDLENGTH       UART_WORDLENGTH_8B      // UART_WORDLENGTH_8B or UART_WORDLENGTH_9B
-#define USART3_BAUD             11520                   // UART3 baud rate (short wired cable)
+#define USART3_BAUD             111520                   // UART3 baud rate (short wired cable)
 #define USART3_WORDLENGTH       UART_WORDLENGTH_8B      // UART_WORDLENGTH_8B or UART_WORDLENGTH_9B
 
 #if defined(VARIANT_ADC) || defined(VARIANT_HOVERCAR)
@@ -200,13 +200,13 @@
 
   #if defined(VARIANT_HOVERCAR_BACK)
     // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
-    #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
+    #define ADC1_MIN            10         // min ADC1-value while poti at minimum-position (0 - 4095)
     //#define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
-    #define ADC1_MAX            3900      // max ADC1-value while poti at maximum-position (0 - 4095)
+    #define ADC1_MAX            2400      // max ADC1-value while poti at maximum-position (0 - 4095)
     // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
-    #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
+    #define ADC2_MIN            910         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
-    #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
+    #define ADC2_MAX            4030      // max ADC2-value while poti at maximum-position (0 - 4095)
   #elif defined(VARIANT_HOVERCAR_FRONT)
     // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
     #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
@@ -323,11 +323,11 @@
 // ################################# VARIANT_HOVERCAR SETTINGS ############################
 #ifdef VARIANT_HOVERCAR
   #if defined(VARIANT_HOVERCAR_BACK)
-    #define SPEED_COEFFICIENT  4096 //0.25f 16384  //  1.0f
+    #define SPEED_COEFFICIENT 4096 // 1.0f [-] higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14 
   #elif defined(VARIANT_HOVERCAR_FRONT)
     #define SPEED_COEFFICIENT 3072
   #endif
-  #define STEER_COEFFICIENT  0.5f      //  0.0f
+  #define STEER_COEFFICIENT  0      //  0.0f
   
   #define INVERT_R_DIRECTION
   #define INVERT_L_DIRECTION
@@ -361,7 +361,7 @@
 
 #endif
 
-// ################################# SIMPLE BOBBYCAR #################################
+// ##############16384################### SIMPLE BOBBYCAR #################################
 // for better bobbycar code see: https://github.com/larsmm/hoverboard-firmware-hack-bbcar
 // #define FILTER             6553    //  0.1f 
 // #define SPEED_COEFFICIENT  49152   // -1.0f
