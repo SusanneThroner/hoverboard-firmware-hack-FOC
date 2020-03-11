@@ -238,7 +238,7 @@ int main(void) {
         if (!MultipleTapBreak.b_multipleTap) {  // Check driving direction
           speed = steer + speed;                // Forward driving          
         } else {
-          speed = steer - speed;                // Reverse driving
+          speed = steer - (speed/REVERSE_QUOTIENT);                // Reverse driving
         }
       #endif
 
