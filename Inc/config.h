@@ -134,7 +134,7 @@
 */
 // Control selections
 #define CTRL_TYP_SEL    2               // [-] Control type selection: 0 = Commutation , 1 = Sinusoidal, 2 = FOC Field Oriented Control (default)
-#define CTRL_MOD_REQ    1               // [-] Control mode request: 0 = Open mode, 1 = VOLTAGE mode (default), 2 = SPEED mode, 3 = TORQUE mode. Note: SPEED and TORQUE modes are only available for FOC!
+#define CTRL_MOD_REQ    3               // [-] Control mode request: 0 = Open mode, 1 = VOLTAGE mode (default), 2 = SPEED mode, 3 = TORQUE mode. Note: SPEED and TORQUE modes are only available for FOC!
 #define DIAG_ENA        1               // [-] Motor Diagnostics enable flag: 0 = Disabled, 1 = Enabled (default)
 
 // Limitation settings
@@ -294,7 +294,8 @@
     #define ADC2_MIN            910         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
     #define ADC2_MAX            4030      // max ADC2-value while poti at maximum-position (0 - 4095)
-  #elif defined(VARIANT_HOVERCAR_FRONT)
+    #define SPEED_COEFFICIENT 4096 // 1.0f [-] higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14 
+   #elif defined(VARIANT_HOVERCAR_FRONT)
     // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
     #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
     //#define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
@@ -303,6 +304,7 @@
     #define ADC2_MIN            375         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
     #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
+    #define SPEED_COEFFICIENT 3072
   #else
       // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
     #define ADC1_MIN            10         // min ADC1-value while poti at minimum-position (0 - 4095)
@@ -312,23 +314,14 @@
     #define ADC2_MIN            910         // min ADC2-value while poti at minimum-position (0 - 4095)
   // #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
     #define ADC2_MAX            4030      // max ADC2-value while poti at maximum-position (0 - 4095)
-  #endif
-
-  #define SPEED_COEFFICIENT   16384     //  1.0f
-  #define STEER_COEFFICIENT   0         //  0.0f
-  #define INVERT_R_DIRECTION           // Invert rotation of right motor
-  #define INVERT_L_DIRECTION           // Invert rotation of left motor
-  //#define SIDEBOARD_SERIAL_USART3
-  //#define FEEDBACK_SERIAL_USART3        // right sensor board cable, disable if I2C (nunchuk or lcd) is used!
-  #define DEBUG_SERIAL_USART3          // right sensor board cable, disable if I2C (nunchuk or lcd) is used!
-
-  #if defined(VARIANT_HOVERCAR_BACK)
-    #define SPEED_COEFFICIENT 4096 // 1.0f [-] higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14 
-  #elif defined(VARIANT_HOVERCAR_FRONT)
-    #define SPEED_COEFFICIENT 3072
-  #else //2 WD Hovercar
     #define SPEED_COEFFICIENT 4096
   #endif
+
+  #define INVERT_R_DIRECTION           // Invert rotation of right motor
+  #define INVERT_L_DIRECTION           // Invert rotation of left motor
+
+  #define DEBUG_SERIAL_USART3          // right sensor board cable, disable if I2C (nunchuk or lcd) is used!
+
   #define REVERSE_QUOTIENT 2        // 2: Backwards half as fast
   #define STEER_COEFFICIENT  0      //  0.0f
 #endif
