@@ -24,6 +24,7 @@
 #define DEFINES_H
 
 #include "stm32f1xx_hal.h"
+#include "config.h"
 
 #define LEFT_HALL_U_PIN GPIO_PIN_5
 #define LEFT_HALL_V_PIN GPIO_PIN_6
@@ -124,6 +125,38 @@
 #define CHARGER_PIN GPIO_PIN_12
 #define CHARGER_PORT GPIOA
 
+#if defined(CONTROL_PPM_LEFT)
+#define PPM_PIN             GPIO_PIN_3
+#define PPM_PORT            GPIOA
+#elif defined(CONTROL_PPM_RIGHT)
+#define PPM_PIN             GPIO_PIN_11
+#define PPM_PORT            GPIOB
+#endif
+
+#if defined(CONTROL_PWM_LEFT)
+#define PWM_PIN_CH1         GPIO_PIN_2
+#define PWM_PORT_CH1        GPIOA
+#define PWM_PIN_CH2         GPIO_PIN_3
+#define PWM_PORT_CH2        GPIOA
+#elif defined(CONTROL_PWM_RIGHT)
+#define PWM_PIN_CH1         GPIO_PIN_10
+#define PWM_PORT_CH1        GPIOB
+#define PWM_PIN_CH2         GPIO_PIN_11
+#define PWM_PORT_CH2        GPIOB
+#endif
+
+#if defined(SUPPORT_BUTTONS_LEFT)
+#define BUTTON1_PIN         GPIO_PIN_2
+#define BUTTON1_PORT        GPIOA
+#define BUTTON2_PIN         GPIO_PIN_3
+#define BUTTON2_PORT        GPIOA
+#elif defined(SUPPORT_BUTTONS_RIGHT)
+#define BUTTON1_PIN         GPIO_PIN_10
+#define BUTTON1_PORT        GPIOB
+#define BUTTON2_PIN         GPIO_PIN_11
+#define BUTTON2_PORT        GPIOB
+#endif
+
 #define DELAY_TIM_FREQUENCY_US 1000000
 
 #define MILLI_R (R * 1000)
@@ -141,11 +174,13 @@
 #define RAD(a) ((a)*180.0f / M_PI)
 #define SIGN(a) (((a) < 0) ? (-1) : (((a) > 0) ? (1) : (0)))
 #define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+#define IN_RANGE(x, low, high) (((x) >= (low)) && ((x) <= (high)))
 #define SCALE(value, high, max) MIN(MAX(((max) - (value)) / ((max) - (high)), 0.0f), 1.0f)
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define MIN3(a, b, c) MIN(a, MIN(b, c))
 #define MAX3(a, b, c) MAX(a, MAX(b, c))
+#define ARRAY_LEN(x) (uint32_t)(sizeof(x) / sizeof(*(x)))
 
 typedef struct {
   uint16_t dcr; 
@@ -160,13 +195,16 @@ typedef struct {
   uint16_t l_rx2;
 } adc_buf_t;
 
-// Define I2C, Nunchuk, PPM functions
+// Define I2C, Nunchuk, PPM, PWM functions
 void I2C_Init(void);
 void Nunchuk_Init(void);
 void Nunchuk_Read(void);
 uint8_t Nunchuk_Ping(void);
 void PPM_Init(void);
 void PPM_ISR_Callback(void);
+void PWM_Init(void);
+void PWM_ISR_CH1_Callback(void);
+void PWM_ISR_CH2_Callback(void);
 
 // Sideboard definitions
 #define LED1_SET     				(0x01)
@@ -178,5 +216,5 @@ void PPM_ISR_Callback(void);
 #define SENSOR2_SET    			(0x02)
 #define SENSOR_MPU    			(0x04)
 
-#endif
+#endif // DEFINES_H
 

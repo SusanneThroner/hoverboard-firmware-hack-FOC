@@ -12,14 +12,16 @@
   //#define VARIANT_USART       // Variant for Serial control via USART3 input
   //#define VARIANT_NUNCHUK     // Variant for Nunchuk controlled vehicle build
   //#define VARIANT_PPM         // Variant for RC-Remote with PPM-Sum Signal
+  //#define VARIANT_PWM         // Variant for RC-Remote with PWM Signal
   //#define VARIANT_IBUS        // Variant for RC-Remotes with FLYSKY IBUS
   #define VARIANT_HOVERCAR    // Variant for HOVERCAR build
-  //#define VARIANT_HOVERBOARD  // Variant for HOVERBOARD build
-  //#define VARIANT_TRANSPOTTER // Variant for TRANSPOTTER build https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter https://hackaday.io/project/161891-transpotter-ng
-  //#if defined(VARIANT_HOVERCAR)
+  //#if defined(VARIANT_HOVERCAR) //VARIANT for asymetrical 4 WD bobby car
    // #define VARIANT_HOVERCAR_BACK
     //#define VARIANT_HOVERCAR_FRONT
   //#endif
+  //#define VARIANT_HOVERBOARD  // Variant for HOVERBOARD build
+  //#define VARIANT_TRANSPOTTER // Variant for TRANSPOTTER build https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter https://hackaday.io/project/161891-transpotter-ng
+  //#define VARIANT_SKATEBOARD  // Variant for SKATEBOARD build
 #endif
 // ########################### END OF VARIANT SELECTION ############################
 
@@ -32,7 +34,7 @@
 #else
   #define DELAY_IN_MAIN_LOOP    5     // in ms. default 5. it is independent of all the timing critical stuff. do not touch if you do not know what you are doing.
 #endif
-#define TIMEOUT                 5     // number of wrong / missing input commands before emergency off
+#define TIMEOUT                20     // number of wrong / missing input commands before emergency off
 #define A2BIT_CONV             50     // A to bit for current conversion on ADC. Example: 1 A = 50, 2 A = 100, etc
 
 // ADC conversion time definitions
@@ -132,22 +134,41 @@
    Outputs:
     - speedR and speedL: normal driving INPUT_MIN to INPUT_MAX
 */
+#define COM_CTRL        0               // [-] Commutation Control Type
+#define SIN_CTRL        1               // [-] Sinusoidal Control Type
+#define FOC_CTRL        2               // [-] Field Oriented Control (FOC) Type
+
+#define OPEN_MODE       0               // [-] OPEN mode
+#define VLT_MODE        1               // [-] VOLTAGE mode
+#define SPD_MODE        2               // [-] SPEED mode
+#define TRQ_MODE        3               // [-] TORQUE mode
+
+// Enable/Disable Motor
+#define MOTOR_LEFT_ENA                  // [-] Enable LEFT motor.  Comment-out if this motor is not needed to be operational
+#define MOTOR_RIGHT_ENA                 // [-] Enable RIGHT motor. Comment-out if this motor is not needed to be operational
+
 // Control selections
-#define CTRL_TYP_SEL    2               // [-] Control type selection: 0 = Commutation , 1 = Sinusoidal, 2 = FOC Field Oriented Control (default)
-#define CTRL_MOD_REQ    3               // [-] Control mode request: 0 = Open mode, 1 = VOLTAGE mode (default), 2 = SPEED mode, 3 = TORQUE mode. Note: SPEED and TORQUE modes are only available for FOC!
+#define CTRL_TYP_SEL    FOC_CTRL        // [-] Control type selection: COM_CTRL, SIN_CTRL, FOC_CTRL (default)
+#define CTRL_MOD_REQ    TRQ_MODE        // [-] Control mode request: OPEN_MODE, VLT_MODE (default), SPD_MODE, TRQ_MODE. Note: SPD_MODE and TRQ_MODE are only available for CTRL_FOC!
 #define DIAG_ENA        1               // [-] Motor Diagnostics enable flag: 0 = Disabled, 1 = Enabled (default)
 
 // Limitation settings
-#define I_MOT_MAX       15              // [A] Maximum motor current limit
-#define I_DC_MAX        17              // [A] Maximum DC Link current limit (This is the final current protection. Above this value, current chopping is applied. To avoid this make sure that I_DC_MAX = I_MOT_MAX + 2A)
+#define I_MOT_MAX       15              // [A] Maximum single motor current limit
+#define I_DC_MAX        17              // [A] Maximum stage2 DC Link current limit for Commutation and Sinusoidal types (This is the final current protection. Above this value, current chopping is applied. To avoid this make sure that I_DC_MAX = I_MOT_MAX + 2A)
 #define N_MOT_MAX       1000            // [rpm] Maximum motor speed limit
 
 // Field Weakening / Phase Advance
 #define FIELD_WEAK_ENA  0               // [-] Field Weakening / Phase Advance enable flag: 0 = Disabled (default), 1 = Enabled
-#define FIELD_WEAK_MAX  5               // [A] Maximum Field Weakening D axis current (only for FOC). Higher current results in higher maximum speed.
+#define FIELD_WEAK_MAX  5               // [A] Maximum Field Weakening D axis current (only for FOC). Higher current results in higher maximum speed. Up to 10A has been tested using 10" wheels.
 #define PHASE_ADV_MAX   25              // [deg] Maximum Phase Advance angle (only for SIN). Higher angle results in higher maximum speed.
-#define FIELD_WEAK_HI   1500            // [-] Input target High threshold for reaching maximum Field Weakening / Phase Advance. Do NOT set this higher than 1500.
-#define FIELD_WEAK_LO   1000            // [-] Input target Low threshold for starting Field Weakening / Phase Advance. Do NOT set this higher than 1000.
+#define FIELD_WEAK_HI   1000            // (1000, 1500] Input target High threshold for reaching maximum Field Weakening / Phase Advance. Do NOT set this higher than 1500.
+#define FIELD_WEAK_LO   750             // ( 500, 1000] Input target Low threshold for starting Field Weakening / Phase Advance. Do NOT set this higher than 1000.
+
+// Extra functionality
+// #define STANDSTILL_HOLD_ENABLE          // [-] Flag to hold the position when standtill is reached. Only available and makes sense for VOLTAGE or TORQUE mode.
+// #define ELECTRIC_BRAKE_ENABLE           // [-] Flag to enable electric brake and replace the motor "freewheel" with a constant braking when the input torque request is 0. Only available and makes sense for TORQUE mode.
+// #define ELECTRIC_BRAKE_MAX    100       // (0, 500) Maximum electric brake to be applied when input torque request is 0 (pedal fully released).
+// #define ELECTRIC_BRAKE_THRES  120       // (0, 500) Threshold below at which the electric brake starts engaging.
 // ########################### END OF MOTOR CONTROL ########################
 
 
@@ -157,7 +178,6 @@
 #define INACTIVITY_TIMEOUT      	8       // Minutes of not driving until poweroff. it is not very precise.
 #define BEEPS_BACKWARD          	0       // 0 or 1
 #define FLASH_WRITE_KEY           0x1234  // Flash writing key, used when writing data to flash memory
-// #define SUPPORT_BUTTONS							  // Define for buttons support on ADC, Nunchuck
 
 /* FILTER is in fixdt(0,16,16): VAL_fixedPoint = VAL_floatingPoint * 2^16. In this case 6553 = 0.1 * 2^16
  * Value of COEFFICIENT is in fixdt(1,16,14)
@@ -170,6 +190,21 @@
 #define DEFAULT_SPEED_COEFFICIENT   16384 // Default for SPEED_COEFFICIENT 1.0f [-] higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14
 #define DEFAULT_STEER_COEFFICIENT   8192  // Defualt for STEER_COEFFICIENT 0.5f [-] higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case  8192 = 0.5 * 2^14. If you do not want any steering, set it to 0.
 // ######################### END OF DEFAULT SETTINGS ##########################
+
+
+
+// ############################## CRUISE CONTROL SETTINGS ############################
+/* Cruise Control info:
+ * enable CRUISE_CONTROL_SUPPORT and (SUPPORT_BUTTONS_LEFT or SUPPORT_BUTTONS_RIGHT depending on which cable is the button installed)
+ * can be activated/deactivated by pressing button1 (Blue cable) to GND
+ * when activated, it maintains the current speed by switching to SPD_MODE. Acceleration is still possible via the input request, but when released it resumes to previous set speed.
+ * when deactivated, it returns to previous control MODE and follows the input request.
+*/
+// #define CRUISE_CONTROL_SUPPORT
+// #define SUPPORT_BUTTONS_LEFT              // Use button1 (Blue Left cable)  to activate/deactivate Cruise Control
+// #define SUPPORT_BUTTONS_RIGHT             // Use button1 (Blue Right cable) to activate/deactivate Cruise Control
+
+// ######################### END OF CRUISE CONTROL SETTINGS ##########################
 
 
 
@@ -214,6 +249,35 @@
 
 
 
+// ################################# VARIANT_ADC SETTINGS ############################
+#ifdef VARIANT_ADC
+/* CONTROL VIA TWO POTENTIOMETERS
+ * ADC-calibration to cover the full poti-range:
+ * Connect potis to left sensor board cable (0 to 3.3V) (do NOT use the red 15V wire in the cable!). see <How to calibrate>.
+ * Turn the potis to minimum position, write value 1 to ADC1_MIN and value 2 to ADC2_MIN
+ * Turn the potis to maximum position, write value 1 to ADC1_MAX and value 2 to ADC2_MAX
+ * For middle resting potis: Let the potis in the middle resting position, write value 1 to ADC1_MID and value 2 to ADC2_MID
+ * Make, flash and test it.
+*/
+  #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
+  // #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
+  #define ADC_PROTECT_TIMEOUT 100       // ADC Protection: number of wrong / missing input commands before safety state is taken
+  #define ADC_PROTECT_THRESH  300       // ADC Protection threshold below/above the MIN/MAX ADC values
+  // #define ADC1_MID_POT                  // ADC1 middle resting poti: comment-out if NOT a middle resting poti
+  #define ADC1_MIN            0         // min ADC1-value while poti at minimum-position (0 - 4095)
+  #define ADC1_MID            2048      // mid ADC1-value while poti at minimum-position (ADC1_MIN - ADC1_MAX)
+  #define ADC1_MAX            4095      // max ADC1-value while poti at maximum-position (0 - 4095)
+  // #define ADC2_MID_POT                  // ADC2 middle resting poti: comment-out if NOT a middle resting poti
+  #define ADC2_MIN            0         // min ADC2-value while poti at minimum-position (0 - 4095)
+  #define ADC2_MID            2048      // mid ADC2-value while poti at minimum-position (ADC2_MIN - ADC2_MAX)
+  #define ADC2_MAX            4095      // max ADC2-value while poti at maximum-position (0 - 4095)
+  // #define SUPPORT_BUTTONS_LEFT          // use left sensor board cable for button inputs.  Disable DEBUG_SERIAL_USART2!
+  // #define SUPPORT_BUTTONS_RIGHT         // use right sensor board cable for button inputs. Disable DEBUG_SERIAL_USART3!
+#endif
+// ############################# END OF VARIANT_ADC SETTINGS #########################
+
+
+
 // ############################ VARIANT_USART SETTINGS ############################
 #ifdef VARIANT_USART
   // #define SIDEBOARD_SERIAL_USART2
@@ -223,6 +287,8 @@
   // #define SIDEBOARD_SERIAL_USART3
   #define CONTROL_SERIAL_USART3         // right sensor board cable, disable if I2C (nunchuk or lcd) is used! For Arduino control check the hoverSerial.ino
   #define FEEDBACK_SERIAL_USART3        // right sensor board cable, disable if I2C (nunchuk or lcd) is used!
+  // #define SUPPORT_BUTTONS_LEFT          // use left sensor board cable for button inputs.  Disable DEBUG_SERIAL_USART2!
+  // #define SUPPORT_BUTTONS_RIGHT         // use right sensor board cable for button inputs. Disable DEBUG_SERIAL_USART3!
 #endif
 // ######################## END OF VARIANT_USART SETTINGS #########################
 
@@ -241,6 +307,7 @@
   #define FILTER             3276    //  0.05f
   #define SPEED_COEFFICIENT  8192    //  0.5f
   #define STEER_COEFFICIENT  62259   // -0.2f
+  // #define SUPPORT_BUTTONS            // Define for Nunchuck buttons support
 #endif
 // ############################# END OF VARIANT_NUNCHUK SETTINGS #########################
 
@@ -252,10 +319,55 @@
  * left sensor board cable. Channel 1: steering, Channel 2: speed.
  * https://gist.github.com/peterpoetzi/1b63a4a844162196613871767189bd05
 */
-  #define CONTROL_PPM                 // use PPM-Sum as input. disable CONTROL_SERIAL_USART2!
+  #define CONTROL_PPM_LEFT            // use PPM-Sum as input on the LEFT cable . disable CONTROL_SERIAL_USART2!
+  // #define CONTROL_PPM_RIGHT           // use PPM-Sum as input on the RIGHT cable. disable CONTROL_SERIAL_USART3!
+  #ifdef CONTROL_PPM_RIGHT
+    #define DEBUG_SERIAL_USART2       // left sensor cable debug
+  #else
+    #define DEBUG_SERIAL_USART3       // right sensor cable debug
+  #endif
   #define PPM_NUM_CHANNELS    6       // total number of PPM channels to receive, even if they are not used.
+  #define PPM_DEADBAND        100     // How much of the center position is considered 'center' (100 = values -100 to 100 are considered 0)
+  // Min / Max values of each channel (use DEBUG to determine these values)
+  #define PPM_CH1_MAX         1000    // (0 - 1000)
+  #define PPM_CH1_MIN        -1000    // (-1000 - 0)
+  #define PPM_CH2_MAX         1000    // (0 - 1000)
+  #define PPM_CH2_MIN        -1000    // (-1000 - 0)
+  // #define SUPPORT_BUTTONS             // Define for PPM buttons support
+  // #define SUPPORT_BUTTONS_LEFT        // use left sensor board cable for button inputs.  Disable DEBUG_SERIAL_USART2!
+  // #define SUPPORT_BUTTONS_RIGHT       // use right sensor board cable for button inputs. Disable DEBUG_SERIAL_USART3!
 #endif
 // ############################# END OF VARIANT_PPM SETTINGS ############################
+
+
+// ################################# VARIANT_PWM SETTINGS ##############################
+#ifdef VARIANT_PWM
+/* ###### CONTROL VIA RC REMOTE ######
+ * left sensor board cable. Connect PA2 to channel 1 and PA3 to channel 2 on receiver.
+ * Channel 1: steering, Channel 2: speed.
+*/
+  #define CONTROL_PWM_LEFT            // use RC PWM as input on the LEFT cable. disable DEBUG_SERIAL_USART2!
+  // #define CONTROL_PWM_RIGHT           // use RC PWM as input on the RIGHT cable. disable DEBUG_SERIAL_USART3!
+  #define PWM_DEADBAND        100     // How much of the center position is considered 'center' (100 = values -100 to 100 are considered 0)
+  // Min / Max values of each channel (use DEBUG to determine these values)
+  #define PWM_CH1_MAX         1000    // (0 - 1000)
+  #define PWM_CH1_MIN        -1000    // (-1000 - 0)
+  #define PWM_CH2_MAX         1000    // (0 - 1000)
+  #define PWM_CH2_MIN        -1000    // (-1000 - 0)  
+  #define FILTER              6553    // 0.1f [-] fixdt(0,16,16) lower value == softer filter [0, 65535] = [0.0 - 1.0].
+  #define SPEED_COEFFICIENT   16384   // 1.0f [-] fixdt(1,16,14) higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14
+  #define STEER_COEFFICIENT   16384   // 1.0f [-] fixdt(1,16,14) higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14. If you do not want any steering, set it to 0.
+  // #define INVERT_R_DIRECTION
+  // #define INVERT_L_DIRECTION
+  // #define SUPPORT_BUTTONS_LEFT        // use left sensor board cable for button inputs.  Disable DEBUG_SERIAL_USART2!
+  // #define SUPPORT_BUTTONS_RIGHT       // use right sensor board cable for button inputs. Disable DEBUG_SERIAL_USART3!
+  #ifdef CONTROL_PWM_RIGHT
+    #define DEBUG_SERIAL_USART2       // left sensor cable debug
+  #else
+    #define DEBUG_SERIAL_USART3       // right sensor cable debug
+  #endif
+#endif
+// ############################# END OF VARIANT_PWM SETTINGS ############################
 
 
 
@@ -280,9 +392,11 @@
 
 // ############################ VARIANT_HOVERCAR SETTINGS ############################
 #ifdef VARIANT_HOVERCAR
+  #undef  CTRL_MOD_REQ
+  #define CTRL_MOD_REQ        TRQ_MODE  // HOVERCAR works best in TORQUE Mode
   #define CONTROL_ADC                   // use ADC as input. disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
   #define ADC_PROTECT_ENA               // ADC Protection Enable flag. Use this flag to make sure the ADC is protected when GND or Vcc wire is disconnected
-  #define ADC_PROTECT_TIMEOUT 30        // ADC Protection: number of wrong / missing input commands before safety state is taken
+  #define ADC_PROTECT_TIMEOUT 100       // ADC Protection: number of wrong / missing input commands before safety state is taken
   #define ADC_PROTECT_THRESH  300       // ADC Protection threshold below/above the MIN/MAX ADC values
 
   #if defined(VARIANT_HOVERCAR_BACK)
@@ -366,11 +480,46 @@
 // ############################# END OF VARIANT_TRANSPOTTER SETTINGS ########################
 
 
+// ################################# VARIANT_SKATEBOARD SETTINGS ##############################
+#ifdef VARIANT_SKATEBOARD
+/* ###### CONTROL VIA RC REMOTE ######
+ * right sensor board cable. Connect PB10 to channel 1 and PB11 to channel 2 on receiver.
+ * Channel 1: steering, Channel 2: speed.
+*/
+  #undef  CTRL_MOD_REQ
+  #define CTRL_MOD_REQ        TRQ_MODE  // SKATEBOARD works best in TORQUE Mode
+  // #define CONTROL_PWM_LEFT            // use RC PWM as input on the LEFT cable. disable DEBUG_SERIAL_USART2!
+  #define CONTROL_PWM_RIGHT           // use RC PWM as input on the RIGHT cable. disable DEBUG_SERIAL_USART3!
+  #define PWM_DEADBAND        100     // How much of the center position is considered 'center' (100 = values -100 to 100 are considered 0)
+  // Min / Max values of each channel (use DEBUG to determine these values)
+  #define PWM_CH1_MAX         1000    // (0 - 1000)
+  #define PWM_CH1_MIN        -1000    // (-1000 - 0)
+  #define PWM_CH2_MAX         700     // (0 - 1000)
+  #define PWM_CH2_MIN        -800     // (-1000 - 0)
+  #define PWM_CH2_OUT_MIN    -400     // (-1000 - 0) Change this value to adjust the braking amount
+  #define FILTER              6553    // 0.1f [-] fixdt(0,16,16) lower value == softer filter [0, 65535] = [0.0 - 1.0].
+  #define SPEED_COEFFICIENT   16384   // 1.0f [-] fixdt(1,16,14) higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14
+  #define STEER_COEFFICIENT   0       // 1.0f [-] fixdt(1,16,14) higher value == stronger. [0, 65535] = [-2.0 - 2.0]. In this case 16384 = 1.0 * 2^14. If you do not want any steering, set it to 0.
+  #define INVERT_R_DIRECTION
+  #define INVERT_L_DIRECTION
+  // #define SUPPORT_BUTTONS_LEFT        // use left sensor board cable for button inputs.  Disable DEBUG_SERIAL_USART2!
+  // #define SUPPORT_BUTTONS_RIGHT       // use right sensor board cable for button inputs. Disable DEBUG_SERIAL_USART3!
+  // #define STANDSTILL_HOLD_ENABLE      // [-] Flag to hold the position when standtill is reached. Only available and makes sense for VOLTAGE or TORQUE mode.
+  #ifdef CONTROL_PWM_RIGHT
+    #define DEBUG_SERIAL_USART2       // left sensor cable debug
+  #else
+    #define DEBUG_SERIAL_USART3       // right sensor cable debug
+  #endif
+#endif
+// ############################# END OF VARIANT_SKATEBOARD SETTINGS ############################
+
+
 
 // ########################### UART SETIINGS ############################
 #if defined(FEEDBACK_SERIAL_USART2) || defined(CONTROL_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2) || \
     defined(FEEDBACK_SERIAL_USART3) || defined(CONTROL_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3)
   #define SERIAL_START_FRAME      0xABCD                  // [-] Start frame definition for serial commands
+  #define SERIAL_BUFFER_SIZE      64                      // [bytes] Size of Serial Rx buffer. Make sure it is always larger than the structure size
   #define SERIAL_TIMEOUT          160                     // [-] Serial timeout duration for the received data. 160 ~= 0.8 sec. Calculation: 0.8 sec / 0.005 sec
 #endif
 #if defined(FEEDBACK_SERIAL_USART2) || defined(CONTROL_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2)
@@ -382,12 +531,6 @@
 #if defined(FEEDBACK_SERIAL_USART3) || defined(CONTROL_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3)
   #define USART3_BAUD             115200                   // UART3 baud rate (short wired cable)
   #define USART3_WORDLENGTH       UART_WORDLENGTH_8B      // UART_WORDLENGTH_8B or UART_WORDLENGTH_9B
-#endif
-
-#if defined(DEBUG_SERIAL_USART2)
-  #define UART_DMA_CHANNEL_TX DMA1_Channel7
-#elif defined(DEBUG_SERIAL_USART3)
-  #define UART_DMA_CHANNEL_TX DMA1_Channel2  
 #endif
 // ########################### UART SETIINGS ############################
 
@@ -411,13 +554,16 @@
 
 
 // ############################### VALIDATE SETTINGS ###############################
-#if !defined(VARIANT_ADC) && !defined(VARIANT_USART) && !defined(VARIANT_NUNCHUK) && !defined(VARIANT_PPM) && !defined(VARIANT_IBUS) && \
-    !defined(VARIANT_HOVERCAR) && !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER)
+#if !defined(VARIANT_ADC) && !defined(VARIANT_USART) && !defined(VARIANT_NUNCHUK) && !defined(VARIANT_PPM) && !defined(VARIANT_PWM) && \
+    !defined(VARIANT_IBUS) && !defined(VARIANT_HOVERCAR) && !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER) && !defined(VARIANT_SKATEBOARD)
   #error Variant not defined! Please check platformio.ini or Inc/config.h for available variants.
 #endif
 
-#if defined(CONTROL_SERIAL_USART2) && defined(CONTROL_SERIAL_USART3)
-  #error CONTROL_SERIAL_USART2 and CONTROL_SERIAL_USART3 not allowed, choose one.
+
+// General checks
+#if (defined(CONTROL_ADC)     || defined(CONTROL_SERIAL_USART2) || defined(CONTROL_PPM_LEFT)  || defined(CONTROL_PWM_LEFT)) && \
+    (defined(CONTROL_NUNCHUK) || defined(CONTROL_SERIAL_USART3) || defined(CONTROL_PPM_RIGHT) || defined(CONTROL_PWM_RIGHT))
+  #warning !! Multiple control input sources defined !! If NOT handled correctly, it can lead to undesired behavior!
 #endif
 
 #if defined(CONTROL_SERIAL_USART2) && defined(SIDEBOARD_SERIAL_USART2)
@@ -440,26 +586,88 @@
   #error DEBUG_SERIAL_USART2 and DEBUG_SERIAL_USART3 not allowed, choose one.
 #endif
 
+#if defined(CONTROL_PPM_LEFT) && defined(CONTROL_PPM_RIGHT)
+  #error CONTROL_PPM_LEFT and CONTROL_PPM_RIGHT not allowed, choose one.
+#endif
+
+#if defined(CONTROL_PWM_LEFT) && defined(CONTROL_PWM_RIGHT)
+  #error CONTROL_PWM_LEFT and CONTROL_PWM_RIGHT not allowed, choose one.
+#endif
+
+#if defined(SUPPORT_BUTTONS_LEFT) && defined(SUPPORT_BUTTONS_RIGHT)
+  #error SUPPORT_BUTTONS_LEFT and SUPPORT_BUTTONS_RIGHT not allowed, choose one.
+#endif
+
+
+// LEFT cable checks
 #if defined(CONTROL_ADC) && (defined(CONTROL_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2) || defined(FEEDBACK_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2))
   #error CONTROL_ADC and SERIAL_USART2 not allowed. It is on the same cable.
 #endif
 
-#if (defined(CONTROL_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2)) && defined(CONTROL_PPM)
-  #error CONTROL_PPM and SERIAL_USART2 not allowed. It is on the same cable.
+#if defined(CONTROL_PPM_LEFT) && (defined(CONTROL_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2) || defined(FEEDBACK_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2))
+  #error CONTROL_PPM_LEFT and SERIAL_USART2 not allowed. It is on the same cable.
 #endif
 
-#if (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3)) && defined(CONTROL_NUNCHUK)
+#if defined(CONTROL_PWM_LEFT) && (defined(CONTROL_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2) || defined(FEEDBACK_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2))
+  #error CONTROL_PWM_LEFT and SERIAL_USART2 not allowed. It is on the same cable.
+#endif
+
+#if defined(SUPPORT_BUTTONS_LEFT) && (defined(CONTROL_SERIAL_USART2) || defined(SIDEBOARD_SERIAL_USART2) || defined(FEEDBACK_SERIAL_USART2) || defined(DEBUG_SERIAL_USART2))
+  #error SUPPORT_BUTTONS_LEFT and SERIAL_USART2 not allowed. It is on the same cable.
+#endif
+
+#if defined(SUPPORT_BUTTONS_LEFT) && (defined(CONTROL_ADC) || defined(CONTROL_PPM_LEFT) || defined(CONTROL_PWM_LEFT))
+  #error SUPPORT_BUTTONS_LEFT and (CONTROL_ADC or CONTROL_PPM_LEFT or CONTROL_PWM_LEFT) not allowed. It is on the same cable.
+#endif
+
+#if defined(CONTROL_ADC) && (defined(CONTROL_PPM_LEFT) || defined(CONTROL_PWM_LEFT))
+  #error CONTROL_ADC and (CONTROL_PPM_LEFT or CONTROL_PWM_LEFT) not allowed. It is on the same cable.
+#endif
+
+#if defined(CONTROL_PPM_LEFT) && defined(CONTROL_PWM_LEFT)
+  #error CONTROL_PPM_LEFT and CONTROL_PWM_LEFT not allowed. It is on the same cable.
+#endif
+
+
+// RIGHT cable checks
+#if defined(CONTROL_NUNCHUK) && (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(FEEDBACK_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3))
   #error CONTROL_NUNCHUK and SERIAL_USART3 not allowed. It is on the same cable.
 #endif
 
-#if (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3)) && defined(DEBUG_I2C_LCD)
+#if defined(CONTROL_PPM_RIGHT) && (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(FEEDBACK_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3))
+  #error CONTROL_PPM_RIGHT and SERIAL_USART3 not allowed. It is on the same cable.
+#endif
+
+#if defined(CONTROL_PWM_RIGHT) && (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(FEEDBACK_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3))
+  #error CONTROL_PWM_RIGHT and SERIAL_USART3 not allowed. It is on the same cable.
+#endif
+
+#if defined(DEBUG_I2C_LCD) && (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(FEEDBACK_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3))
   #error DEBUG_I2C_LCD and SERIAL_USART3 not allowed. It is on the same cable.
 #endif
 
-#if defined(CONTROL_PPM) && defined(CONTROL_ADC) && defined(CONTROL_NUNCHUK) || defined(CONTROL_PPM) && defined(CONTROL_ADC) || defined(CONTROL_ADC) && defined(CONTROL_NUNCHUK) || defined(CONTROL_PPM) && defined(CONTROL_NUNCHUK)
-  #error only 1 input method allowed. use CONTROL_PPM or CONTROL_ADC or CONTROL_NUNCHUK.
+#if defined(SUPPORT_BUTTONS_RIGHT) && (defined(CONTROL_SERIAL_USART3) || defined(SIDEBOARD_SERIAL_USART3) || defined(FEEDBACK_SERIAL_USART3) || defined(DEBUG_SERIAL_USART3))
+  #error SUPPORT_BUTTONS_RIGHT and SERIAL_USART3 not allowed. It is on the same cable.
 #endif
 
+#if defined(SUPPORT_BUTTONS_RIGHT) && (defined(CONTROL_NUNCHUK) || defined(CONTROL_PPM_RIGHT) || defined(CONTROL_PWM_RIGHT) || defined(DEBUG_I2C_LCD))
+  #error SUPPORT_BUTTONS_RIGHT and (CONTROL_NUNCHUK or CONTROL_PPM_RIGHT or CONTROL_PWM_RIGHT or DEBUG_I2C_LCD) not allowed. It is on the same cable.
+#endif
+
+#if defined(CONTROL_NUNCHUK) && (defined(CONTROL_PPM_RIGHT) || defined(CONTROL_PWM_RIGHT) || defined(DEBUG_I2C_LCD))
+  #error CONTROL_NUNCHUK and (CONTROL_PPM_RIGHT or CONTROL_PWM_RIGHT or DEBUG_I2C_LCD) not allowed. It is on the same cable.
+#endif
+
+#if defined(DEBUG_I2C_LCD) && (defined(CONTROL_PPM_RIGHT) || defined(CONTROL_PWM_RIGHT))
+  #error DEBUG_I2C_LCD and (CONTROL_PPM_RIGHT or CONTROL_PWM_RIGHT) not allowed. It is on the same cable.
+#endif
+
+#if defined(CONTROL_PPM_RIGHT) && defined(CONTROL_PWM_RIGHT)
+  #error CONTROL_PPM_RIGHT and CONTROL_PWM_RIGHT not allowed. It is on the same cable.
+#endif
+
+
+// Functional checks
 #if defined(ADC_PROTECT_ENA) && ((ADC1_MIN - ADC_PROTECT_THRESH) <= 0 || (ADC1_MAX + ADC_PROTECT_THRESH) >= 4095)
   #warning ADC1 Protection NOT possible! Adjust the ADC thresholds.
   #undef ADC_PROTECT_ENA
@@ -470,7 +678,7 @@
   #undef ADC_PROTECT_ENA
 #endif
 
-#if defined(CONTROL_PPM) && !defined(PPM_NUM_CHANNELS)
+#if (defined(CONTROL_PPM_LEFT) || defined(CONTROL_PPM_RIGHT)) && !defined(PPM_NUM_CHANNELS)
   #error Total number of PPM channels needs to be set
 #endif
 // ############################# END OF VALIDATE SETTINGS ############################
